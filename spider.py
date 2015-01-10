@@ -2,6 +2,23 @@ from sgmllib import SGMLParser
 import urllib2
 
 
+def get_news(url):
+    news = []
+    content = []
+    titlelist = SpiderTitleUrlTimes()
+    titlelist.feed(get_html(url))
+    title = titlelist.get_title_list()
+    time = titlelist.get_times()
+    url = titlelist.get_url()
+    for i in url:
+        con = SpiderContent()
+        con.feed(get_html(i))
+        content.append(con.get_content())
+    for i in range(len(url)):
+        news.append([title[i], content[i], 'jwc', url[i], time[i]])
+    return news
+
+
 def get_html(url):
     response = urllib2.urlopen(url)
     html = response.read()
@@ -55,6 +72,8 @@ class SpiderTitleUrlTimes(SGMLParser):
         return self.times
 
     def get_url(self):
+        for i in range(len(self.url)):
+            self.url[i] = 'http://jwc.sdibt.edu.cn/' + self.url[i]
         return self.url
 
 
@@ -62,10 +81,12 @@ class SpiderContent(SGMLParser):
     def __init__(self):
         SGMLParser.reset(self)
         self.title = ''
-        self.con = []
         self.content = ''
+        self.contentTd = ''
         self.titleFlag = False
         self.contentFlag = False
+        self.contentTdFlag = False
+        self.verbatim = 0
 
     def start_font(self, attrs):
         for k, v in attrs:
@@ -76,22 +97,42 @@ class SpiderContent(SGMLParser):
         self.titleFlag = False
 
     def start_span(self, attrs):
+        if self.contentFlag:
+            self.verbatim += 1
+            return
         self.contentFlag = True
 
     def end_span(self):
-        self.contentFlag = False
+        if self.verbatim == 0:
+            self.contentFlag = False
+        if self.contentFlag:
+            self.verbatim -= 1
+
+    def start_td(self, attrs):
+        for k, v in attrs:
+            if k == 'style' and v == 'font-size:12px':
+                self.contentTdFlag = True
+
+    def end_td(self):
+        self.contentTdFlag = False
 
     def handle_data(self, text):
         if self.titleFlag:
             text = text.strip()
             self.title = text.decode('gbk').encode('utf-8')
         if self.contentFlag:
-            self.con.append(text.decode('gbk').encode('utf-8'))
-
-        self.content = ''.join(self.con)
+            self.content += text.decode('gbk').encode('utf-8')
+        if self.contentTdFlag:
+            self.contentTd += text.decode('gbk').encode('utf-8')
 
     def get_title(self):
         return self.title
 
     def get_content(self):
-        return self.con
+        self.content = self.content.replace(' ', '')
+        self.content = self.content.strip()
+        if self.content == '':
+            self.contentTd = self.contentTd.replace(' ', '')
+            self.contentTd = self.contentTd.strip()
+            return self.contentTd
+        return self.content
