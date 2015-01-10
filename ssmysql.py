@@ -5,19 +5,16 @@ import time
 
 
 def compare_news(news):
-    # @todo
+    # @todo to compare the date of the news
     db = Db()
     # the index list of expired news
-    popList = []
-    # for i in news:
-    # print i[4]
-    print db.lastTime
-    print '#####################################################'
+    expired = 0
     for i in range(len(news)):
-        # @todo
         if time.mktime(time.strptime(str(news[i][4]), '%Y-%m-%d')) < db.lastTime:
-            popList.append(i)
-    print popList
+            expired = i
+            break
+    print expired
+    del news[expired:]
     return news
 
 
@@ -44,10 +41,11 @@ class Db:
         self.lastTime = max(self.times)
         self.lastTimeIndex = self.times.index(max(self.times))
 
-    # @todo
+    # @todo compare the title of same date to fliter the news
     def compare_title(self):
         return
 
+    # @todo insert the news list
     def insert_news(self, title, content, tag, url, time):
         sql = "INSERT INTO news(title,content,tag,url,time) values(%s,%s,%s,%s,%s)"
         n = self.cur.execute(sql, (title, content, tag, url, time))
