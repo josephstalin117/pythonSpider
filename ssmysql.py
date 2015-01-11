@@ -1,6 +1,4 @@
 import MySQLdb
-import spider
-from datetime import *
 import time
 
 
@@ -40,17 +38,16 @@ class Db:
         self.cur.execute("SELECT time FROM news WHERE time IN (SELECT MAX(time) FROM news)")
         self.result = self.cur.fetchall()
         for row in self.result:
-            print row[0]
             self.lastTime = time.mktime(time.strptime(str(row[0]), '%Y-%m-%d %H:%M:%S'))
-        print self.lastTime
 
-    # @todo insert the news list
     def insert_news(self, news):
-        sql = "INSERT INTO news(title,content,tag,url,time) values(%s,%s,%s,%s,%s)"
-        for i in news:
-            self.cur.execute(sql, (i[0], i[1], i[2], i[3], i[4]))
-        self.conn.commit()
-        return self.cur.lastrowid
+        if news:
+            sql = "INSERT INTO news(title,content,tag,url,time) values(%s,%s,%s,%s,%s)"
+            for i in news:
+                self.cur.execute(sql, (i[0], i[1], i[2], i[3], i[4]))
+            self.conn.commit()
+            return self.cur.lastrowid
+        return
 
     def __del__(self):
         self.cur.close()
