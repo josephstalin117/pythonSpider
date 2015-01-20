@@ -1,7 +1,12 @@
+#!/usr/bin/python
 import ssmysql
-import spider
+import spiderJwc
+import spiderCcec
 
-news = spider.get_news(
-    'http://jwc.sdibt.edu.cn/SmallClass.asp?BigClassName=%D0%C5%CF%A2%B7%A2%B2%BC&SmallClassName=%D0%C2%CE%C5%B6%AF%CC%AC')
-news = ssmysql.compare_news(news)
+news = spiderJwc.get_news()
+news = ssmysql.compare_news(news, 'jwc')
+ssmysql.insert_news(news)
+
+news = spiderCcec.get_news()
+news = ssmysql.compare_news(news, 'ccec')
 ssmysql.insert_news(news)

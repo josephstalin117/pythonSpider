@@ -3,10 +3,11 @@ from sgmllib import SGMLParser
 import urllib2
 import re
 
+
 def get_news():
     news = []
     content = []
-    image=[]
+    image = []
     titlelist = SpiderTitleUrlTimes()
     titlelist.feed(get_html('http://ccec.edu.cn/list.php?fid=7'))
     title = titlelist.get_title_list()
@@ -19,13 +20,13 @@ def get_news():
         content.append(con.get_content())
         image.append(con.get_image())
     for i in range(len(url)):
-        news.append([title[i], content[i], 'ccec', url[i], time[i],image[i]])
+        news.append([title[i], content[i], 'ccec', url[i], time[i], image[i]])
     return news
 
 
 def get_html(url):
     response = urllib2.urlopen(url)
-    html = re.sub('onload=\'\s*[^\"]*\'','',response.read())
+    html = re.sub('onload=\'\s*[^\"]*\'', '', response.read())
     return html
 
 
@@ -117,11 +118,11 @@ class SpiderContent(SGMLParser):
         if self.contentTdFlag:
             for k, v in attrs:
                 if k == 'src':
-                    self.image=v
+                    self.image = v
 
     def end_img(self):
         if self.contentTdFlag:
-            self.imageFlag=False
+            self.imageFlag = False
 
     def handle_data(self, text):
         if self.contentFlag:

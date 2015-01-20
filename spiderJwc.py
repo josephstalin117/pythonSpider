@@ -2,11 +2,13 @@ from sgmllib import SGMLParser
 import urllib2
 
 
-def get_news(url):
+def get_news():
     news = []
     content = []
+    images = []
     titlelist = SpiderTitleUrlTimes()
-    titlelist.feed(get_html(url))
+    titlelist.feed(get_html(
+        'http://jwc.sdibt.edu.cn/SmallClass.asp?BigClassName=%D0%C5%CF%A2%B7%A2%B2%BC&SmallClassName=%D0%C2%CE%C5%B6%AF%CC%AC'))
     title = titlelist.get_title_list()
     time = titlelist.get_times()
     url = titlelist.get_url()
@@ -14,8 +16,9 @@ def get_news(url):
         con = SpiderContent()
         con.feed(get_html(i))
         content.append(con.get_content())
+        images.append('')
     for i in range(len(url)):
-        news.append([title[i], content[i], 'jwc', url[i], time[i]])
+        news.append([title[i], content[i], 'jwc', url[i], time[i], images[i]])
     return news
 
 
